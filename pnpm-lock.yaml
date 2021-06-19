@@ -10,6 +10,7 @@ specifiers:
   html-webpack-plugin: ^5.3.1
   mitt: ^2.1.0
   nanoid: ^3.1.23
+  rimraf: ^3.0.2
   typescript: ^4.3.4
   webpack: ^5.39.1
   webpack-cli: ^4.7.2
@@ -26,6 +27,7 @@ devDependencies:
   html-webpack-plugin: 5.3.1_webpack@5.39.1
   mitt: registry.nlark.com/mitt/2.1.0
   nanoid: registry.nlark.com/nanoid/3.1.23
+  rimraf: 3.0.2
   typescript: registry.nlark.com/typescript/4.3.4
   webpack: registry.nlark.com/webpack/5.39.1_webpack-cli@4.7.2
   webpack-cli: registry.nlark.com/webpack-cli/4.7.2_7cf21cf02077ec4d39b618ad6a14b03e
@@ -271,7 +273,7 @@ packages:
     dev: true
 
   /balanced-match/1.0.2:
-    resolution: {integrity: sha1-6D46fj8wCzTLnYf2FfoMvzV2kO4=, tarball: balanced-match/download/balanced-match-1.0.2.tgz?cache=0&sync_timestamp=1617715455635&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fbalanced-match%2Fdownload%2Fbalanced-match-1.0.2.tgz}
+    resolution: {integrity: sha1-6D46fj8wCzTLnYf2FfoMvzV2kO4=, tarball: balanced-match/download/balanced-match-1.0.2.tgz}
     dev: true
 
   /base/0.11.2:
@@ -938,10 +940,6 @@ packages:
   /fresh/0.5.2:
     resolution: {integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=, tarball: fresh/download/fresh-0.5.2.tgz}
     engines: {node: '>= 0.6'}
-    dev: true
-
-  /fs.realpath/1.0.0:
-    resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=, tarball: fs.realpath/download/fs.realpath-1.0.0.tgz}
     dev: true
 
   /fsevents/1.2.13:
@@ -2151,6 +2149,13 @@ packages:
       glob: registry.nlark.com/glob/7.1.7
     dev: true
 
+  /rimraf/3.0.2:
+    resolution: {integrity: sha1-8aVAK6YiCtUswSgrrBrjqkn9Bho=, tarball: rimraf/download/rimraf-3.0.2.tgz}
+    hasBin: true
+    dependencies:
+      glob: registry.nlark.com/glob/7.1.7
+    dev: true
+
   /safe-buffer/5.1.2:
     resolution: {integrity: sha1-mR7GnSluAxN0fVm9/St0XDX4go0=, tarball: safe-buffer/download/safe-buffer-5.1.2.tgz}
     dev: true
@@ -3219,6 +3224,12 @@ packages:
       universalify: 0.1.2
     dev: true
 
+  registry.nlark.com/fs.realpath/1.0.0:
+    resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/fs.realpath/download/fs.realpath-1.0.0.tgz}
+    name: fs.realpath
+    version: 1.0.0
+    dev: true
+
   registry.nlark.com/glob-parent/3.1.0:
     resolution: {integrity: sha1-nmr2KZ2NO9K9QEMIMr0RPfkGxa4=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/glob-parent/download/glob-parent-3.1.0.tgz}
     name: glob-parent
@@ -3229,11 +3240,11 @@ packages:
     dev: true
 
   registry.nlark.com/glob/7.1.7:
-    resolution: {integrity: sha1-Oxk+kjPwHULQs/eClLvutBj5SpA=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/glob/download/glob-7.1.7.tgz?cache=0&sync_timestamp=1620346705005&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fglob%2Fdownload%2Fglob-7.1.7.tgz}
+    resolution: {integrity: sha1-Oxk+kjPwHULQs/eClLvutBj5SpA=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/glob/download/glob-7.1.7.tgz}
     name: glob
     version: 7.1.7
     dependencies:
-      fs.realpath: 1.0.0
+      fs.realpath: registry.nlark.com/fs.realpath/1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
       minimatch: 3.0.4
