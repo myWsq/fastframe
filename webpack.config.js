@@ -13,6 +13,7 @@ module.exports = {
       type: "commonjs",
     },
   },
+  externals: ["@folmejs/core", "mitt", "nanoid", "fast-memoize"],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
