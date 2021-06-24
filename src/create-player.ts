@@ -1,5 +1,5 @@
 import { createDrawer } from "./create-drawer";
-import mitt from "mitt";
+import mitt, { Emitter } from "mitt";
 import { genLinOrder } from "./utils";
 import { createTimer } from "@folmejs/core";
 
@@ -8,8 +8,8 @@ import { createTimer } from "@folmejs/core";
  *
  * 创建 Player 的配置项
  */
-export interface CreatePlayerOptions {
-  /** canvas element */
+export type CreatePlayerOptions = {
+  /** container element */
   canvas: HTMLCanvasElement;
   /** 图片帧地址  */
   frames: string[];
@@ -27,27 +27,65 @@ export interface CreatePlayerOptions {
   autoplay?: boolean;
   /** 是否循环播放 */
   loop?: boolean;
-}
+};
 
 /**
  * @public
  *
  * Player 事件类型
  */
-export type PlayerEventTypes =
-  | "frameloaded"
-  | "loaded"
-  | "tick"
-  | "play"
-  | "pause"
-  | "*";
+export type PlayerEventMap = {
+  /** 帧加载完成触发 */
+  frameloaded: {
+    /** 是否成功加载 */
+    isSuccess: boolean;
+    /** 加载耗时 */
+    time: number;
+    /** 帧下标 */
+    index: number;
+    /** 已加载完成的帧数量 */
+    current: number;
+    /** 总共帧数量 */
+    total: number;
+    /** player */
+    player: Player;
+  };
+
+  /** 全部帧加载完成 */
+  loaded: {
+    /** player */
+    player: Player;
+    /** 总共帧数量 */
+    total: number;
+  };
+
+  /** 帧绘制完成后触发 */
+  tick: {
+    /** player */
+    player: Player;
+    /** 当前绘制的帧下标 */
+    frame: number;
+  };
+
+  /** 播放时触发 */
+  play: {
+    /** player */
+    player: Player;
+  };
+
+  /** 暂停时触发 */
+  pause: {
+    /** player */
+    player: Player;
+  };
+};
 
 /**
  * @public
  *
  * Player 实例
  */
-export interface Player {
+export type Player = {
   /** 当前播放的帧 */
   readonly curFrame: number;
 
@@ -79,18 +117,19 @@ export interface Player {
 
   /**
    * 监听事件 player 事件
-   * @param eventType - 事件类型
-   * @param handler - 事件处理函数
+   * @see https://github.com/developit/mitt#on
    */
-  on: (eventType: PlayerEventTypes, handler: (event: any) => void) => void;
+  on: Emitter<PlayerEventMap>["on"];
 
   /**
    * 移除 player 事件监听
-   * @param eventType - 事件类型
-   * @param handler - 事件处理函数
+   * @see https://github.com/developit/mitt#off
    */
-  off: (eventType: PlayerEventTypes, handler: (event: any) => void) => void;
-}
+  off: Emitter<PlayerEventMap>["off"];
+
+  /** 销毁播放器, 释放内存 */
+  destroy: () => Promise<void>;
+};
 
 /**
  * @public
@@ -103,18 +142,26 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   const {
     canvas,
     frames,
-    useWorker = "OffscreenCanvas" in window,
+    useWorker = typeof window !== "undefined" && "OffscreenCanvas" in window,
     chunkSize = 10,
     fps = 30,
   } = options;
 
-  const emitter = mitt();
+  const emitter = mitt<PlayerEventMap>();
   const drawer = createDrawer(canvas, useWorker);
   const timer = createTimer();
   const loadedFrameIndex = new Set<number>();
 
+  /** 是否已经开始加载 */
+  let isStartLoading = false;
+
+  /** 当前帧下标 */
   let curFrame = 0;
+
+  /** 时间轴 */
   let timeline = 0;
+
+  /** 是否处于倒放状态 */
   let isReversed = false;
 
   // 加载某一帧, 触发相应事件
@@ -154,9 +201,10 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   };
 
   const load: Player["load"] = async () => {
+    isStartLoading = true;
     const linOrder = genLinOrder(frames.length);
 
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
 
     for (const index of linOrder) {
       if (promises.length < chunkSize) {
@@ -177,15 +225,23 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   };
 
   const pin: Player["pin"] = async (index) => {
-    const i = Math.max(0, Math.min(frames.length, Math.round(index)));
-    await loadFrame(index);
-    await drawer.draw(frames[i]);
-    loadedFrameIndex.add(index);
-    curFrame = index;
-    emitter.emit("tick", {
-      player,
-      frame: index,
-    });
+    // 如果未开始加载, 则运行 load
+    if (!isStartLoading) {
+      load();
+    }
+
+    // 计算帧下标
+    const i = Math.max(0, Math.min(frames.length - 1, Math.round(index)));
+
+    // 仅当帧加载完成绘制
+    if (loadedFrameIndex.has(index)) {
+      await drawer.draw(frames[i]);
+      curFrame = index;
+      emitter.emit("tick", {
+        player,
+        frame: index,
+      });
+    }
   };
 
   const play: Player["play"] = () => {
@@ -208,6 +264,11 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     });
   };
 
+  const destroy: Player["destroy"] = async () => {
+    await drawer.destroy();
+    emitter.all.clear();
+  };
+
   const player = {
     get curFrame() {
       return curFrame;
@@ -219,8 +280,9 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     play,
     pause,
     pin,
-    on: emitter.on,
-    off: emitter.off,
+    on: emitter.on.bind(emitter),
+    off: emitter.off.bind(emitter),
+    destroy,
   };
 
   return player;

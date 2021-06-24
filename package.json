@@ -19,14 +19,15 @@
     "access": "public"
   },
   "dependencies": {
+    "@folmejs/core": "^2.4.0",
+    "memoizee": "^0.4.15",
     "mitt": "^3.0.0",
-    "nanoid": "^3.1.23",
-    "fast-memoize": "^2.5.2",
-    "@folmejs/core": "^2.4.0"
+    "nanoid": "^3.1.23"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.13.23",
     "@microsoft/api-extractor": "^7.16.1",
+    "@types/memoizee": "^0.4.5",
     "@types/webpack": "^5.28.0",
     "esbuild-loader": "^2.13.1",
     "html-webpack-plugin": "^5.3.1",

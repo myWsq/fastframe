@@ -1,10 +1,17 @@
-import { decodeImageWithBitmap, loadImageWithFetch } from "./utils";
+import { loadImageWithFetch } from "./utils";
+import memo from "memoizee";
 
-export type Acion = "register" | "preload" | "set_current_frame" | "draw";
+export type Acion = "register" | "preload" | "draw" | "destroy";
 
-let currentFrameSrc = "";
 let canvas: OffscreenCanvas | null = null;
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
+
+const loadImageMemo = memo(loadImageWithFetch, {
+  promise: true,
+});
+const deocdeImageMemo = memo(createImageBitmap, {
+  promise: true,
+});
 
 self.onmessage = async ({ data }) => {
   const { id, action } = data;
@@ -22,11 +29,7 @@ self.onmessage = async ({ data }) => {
         break;
 
       case "preload":
-        await loadImageWithFetch(data.src);
-        break;
-
-      case "set_current_frame":
-        currentFrameSrc = data.src;
+        await loadImageMemo(data.src);
         break;
 
       case "draw":
@@ -35,11 +38,14 @@ self.onmessage = async ({ data }) => {
         }
         const { src } = data;
         const { width, height } = canvas;
-        const decoded = await decodeImageWithBitmap(src);
-        if (currentFrameSrc === src) {
-          ctx.clearRect(0, 0, width, height);
-          ctx.drawImage(decoded, 0, 0, width, height);
-        }
+        const decoded = await loadImageMemo(src).then(deocdeImageMemo);
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(decoded, 0, 0, width, height);
+        break;
+
+      case "destroy":
+        loadImageMemo.clear();
+        deocdeImageMemo.clear();
         break;
 
       default:

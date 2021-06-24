@@ -1,11 +1,9 @@
-import memo from "fast-memoize";
-
 /**
  * 使用 image 元素加载图片, 会创建一个脱离屏幕的 image element.
  * 加载会阻塞主线程
  * @param src - 图片地址
  */
-export const loadImageWithTag = memo((src: string) => {
+export const loadImageWithTag = (src: string) => {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.addEventListener(
@@ -24,40 +22,30 @@ export const loadImageWithTag = memo((src: string) => {
     );
     image.src = src;
   });
-});
+};
 
 /**
  * 使用 fetch 加载图片, 发起 xhr 请求并将文件内容转为 blob.
  * 可以在 worker 内调用.
  * @param src - 图片地址
  * */
-export const loadImageWithFetch = memo(async (src: string) => {
+export const loadImageWithFetch = async (src: string) => {
   const res = await fetch(src);
   return res.blob();
-});
+};
 
 /**
  * 使用 canvas 解码图片，会创建一个脱离屏幕的 canvas 元素
  * 解码会阻塞主线程
  * @param src - 图片地址
  */
-export const decodeImageWithCanvas = memo(async (src: string) => {
-  const image = await loadImageWithTag(src);
+export const decodeImageWithCanvas = (data: HTMLImageElement) => {
   const canvas = document.createElement("canvas");
-  canvas.width = image.width;
-  canvas.height = image.height;
-  canvas.getContext("2d")!.drawImage(image, 0, 0, image.width, image.height);
+  canvas.width = data.width;
+  canvas.height = data.height;
+  canvas.getContext("2d")!.drawImage(data, 0, 0, data.width, data.height);
   return canvas;
-});
-
-/**
- * 使用 bitmap 解码图片, 可在 worker 内调用
- * @param src - 图片地址
- */
-export const decodeImageWithBitmap = memo(async (src: string) => {
-  const image = await loadImageWithFetch(src);
-  return createImageBitmap(image);
-});
+};
 
 /**
  * 生成间隔排列的数组的有序不重复数组

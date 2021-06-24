@@ -13,16 +13,19 @@ async function main() {
     canvas: document.getElementById("canvas") as HTMLCanvasElement,
     frames,
     fps: 10,
+    // useWorker: false,
   });
 
-  let index = 1;
+  let index = 0;
 
-  player.load();
-  player.play();
-
-  setInterval(() => {
+  const interval = setInterval(() => {
     player.pin(index++ % frames.length);
-  }, 60);
+  }, 30);
+
+  // player.on("loaded", (e) => {
+  //   clearInterval(interval);
+  //   player.destroy();
+  // });
 }
 
 main();
