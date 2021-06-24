@@ -6,20 +6,16 @@
 export const loadImageWithTag = (src: string) => {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    image.addEventListener(
-      "load",
-      () => {
-        resolve(image);
-      },
-      false
-    );
-    image.addEventListener(
-      "error",
-      () => {
-        reject(`Frame "${src}" loading failed`);
-      },
-      false
-    );
+    const onload = () => {
+      resolve(image);
+      image.removeEventListener("load", onload, false);
+    };
+    const onerror = () => {
+      reject(`Frame "${src}" loading failed`);
+      image.removeEventListener("error", onload, false);
+    };
+    image.addEventListener("load", onload, false);
+    image.addEventListener("error", onerror, false);
     image.src = src;
   });
 };
