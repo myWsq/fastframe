@@ -1,4 +1,5 @@
 const path = require("path");
+const pkg = require("./package.json");
 
 /** @type import("webpack").Configuration */
 module.exports = {
@@ -13,7 +14,7 @@ module.exports = {
       type: "commonjs",
     },
   },
-  externals: ["@folmejs/core", "mitt", "nanoid", "fast-memoize"],
+  externals: Object.keys(pkg.dependencies),
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
