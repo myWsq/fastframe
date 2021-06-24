@@ -8,7 +8,7 @@ specifiers:
   esbuild-loader: ^2.13.1
   fast-memoize: ^2.5.2
   html-webpack-plugin: ^5.3.1
-  mitt: ^2.1.0
+  mitt: ^3.0.0
   nanoid: ^3.1.23
   rimraf: ^3.0.2
   typescript: ^4.3.4
@@ -17,16 +17,18 @@ specifiers:
   webpack-dev-server: ^3.11.2
   worker-loader: ^3.0.8
 
-devDependencies:
+dependencies:
   '@folmejs/core': registry.nlark.com/@folmejs/core/2.4.0
+  fast-memoize: registry.nlark.com/fast-memoize/2.5.2
+  mitt: registry.nlark.com/mitt/3.0.0
+  nanoid: registry.nlark.com/nanoid/3.1.23
+
+devDependencies:
   '@microsoft/api-documenter': registry.nlark.com/@microsoft/api-documenter/7.13.23
   '@microsoft/api-extractor': registry.nlark.com/@microsoft/api-extractor/7.16.1
   '@types/webpack': registry.nlark.com/@types/webpack/5.28.0_webpack-cli@4.7.2
   esbuild-loader: registry.nlark.com/esbuild-loader/2.13.1_webpack@5.39.1
-  fast-memoize: registry.nlark.com/fast-memoize/2.5.2
   html-webpack-plugin: 5.3.1_webpack@5.39.1
-  mitt: registry.nlark.com/mitt/2.1.0
-  nanoid: registry.nlark.com/nanoid/3.1.23
   rimraf: 3.0.2
   typescript: registry.nlark.com/typescript/4.3.4
   webpack: registry.nlark.com/webpack/5.39.1_webpack-cli@4.7.2
@@ -2707,7 +2709,7 @@ packages:
     resolution: {integrity: sha1-ITZadHzXMW8RThWb7VQxDY58E8Q=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@folmejs/core/download/@folmejs/core-2.4.0.tgz}
     name: '@folmejs/core'
     version: 2.4.0
-    dev: true
+    dev: false
 
   registry.nlark.com/@microsoft/api-documenter/7.13.23:
     resolution: {integrity: sha1-60chhE6I6wSsQcluNS1CgPbqsws=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@microsoft/api-documenter/download/@microsoft/api-documenter-7.13.23.tgz?cache=0&sync_timestamp=1624006578693&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40microsoft%2Fapi-documenter%2Fdownload%2F%40microsoft%2Fapi-documenter-7.13.23.tgz}
@@ -3188,7 +3190,7 @@ packages:
     resolution: {integrity: sha1-eeO7ak7IZ+pAug5xRoFvbNzptX4=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/fast-memoize/download/fast-memoize-2.5.2.tgz}
     name: fast-memoize
     version: 2.5.2
-    dev: true
+    dev: false
 
   registry.nlark.com/faye-websocket/0.11.4:
     resolution: {integrity: sha1-fw2Sdc/dhqHJY9yLZfzEUe3Lsdo=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/faye-websocket/download/faye-websocket-0.11.4.tgz}
@@ -3388,11 +3390,11 @@ packages:
       mime-db: registry.nlark.com/mime-db/1.48.0
     dev: true
 
-  registry.nlark.com/mitt/2.1.0:
-    resolution: {integrity: sha1-90BXfCMXbGIFsSGylzUU6t4bIjA=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/mitt/download/mitt-2.1.0.tgz}
+  registry.nlark.com/mitt/3.0.0:
+    resolution: {integrity: sha1-ae+b1cgP9vV0c+jYkybQHEFL4L0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/mitt/download/mitt-3.0.0.tgz}
     name: mitt
-    version: 2.1.0
-    dev: true
+    version: 3.0.0
+    dev: false
 
   registry.nlark.com/multicast-dns/6.2.3:
     resolution: {integrity: sha1-oOx72QVcQoL3kMPIL04o2zsxsik=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/multicast-dns/download/multicast-dns-6.2.3.tgz}
@@ -3410,7 +3412,7 @@ packages:
     version: 3.1.23
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-    dev: true
+    dev: false
 
   registry.nlark.com/node-releases/1.1.73:
     resolution: {integrity: sha1-3U6B3dUnf/hGuAtSu0DEnt96eyA=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/node-releases/download/node-releases-1.1.73.tgz}

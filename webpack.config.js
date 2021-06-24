@@ -10,7 +10,7 @@ module.exports = {
     clean: true,
     library: {
       name: "Fastframe",
-      type: "umd",
+      type: "commonjs",
     },
   },
   resolve: {
