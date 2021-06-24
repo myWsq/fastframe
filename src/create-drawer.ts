@@ -19,8 +19,6 @@ export type Drawer = {
   /**
    * 绘制某一帧
    * @param src - 图片地址
-   * @param width - 图片绘制宽度
-   * @param height - 图片绘制高度
    */
   draw: (src: string) => Promise<void>;
 

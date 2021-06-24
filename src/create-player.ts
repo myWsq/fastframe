@@ -1,7 +1,8 @@
 import { createDrawer } from "./create-drawer";
 import mitt, { Emitter } from "mitt";
 import { genLinOrder } from "./utils";
-import { createTimer } from "@folmejs/core";
+import { createTimer, setStyle } from "@folmejs/core";
+import { Properties } from "csstype";
 
 /**
  * @public
@@ -9,8 +10,18 @@ import { createTimer } from "@folmejs/core";
  * 创建 Player 的配置项
  */
 export type CreatePlayerOptions = {
-  /** container element */
-  canvas: HTMLCanvasElement;
+  /** 容器元素 */
+  container: HTMLElement;
+  /** canvas 高度 */
+  height: number;
+  /** canvas 宽度 */
+  width: number;
+  /** canvas 布局方式 */
+  layout: "intrinsic" | "responsive" | "fixed" | "fill";
+  /** 为 canvas 元素设置 object-fit, 默认值: cover */
+  objectFit?: Properties["objectFit"];
+  /** 为 canvas 元素设置 object-position, 默认值: center */
+  objectPosition?: Properties["objectPosition"];
   /** 图片帧地址  */
   frames: string[];
   /** 是否使用 worker, 默认为自动检测. */
@@ -140,32 +151,129 @@ export type Player = {
  */
 export function createPlayer(options: CreatePlayerOptions): Player {
   const {
-    canvas,
+    container,
+    width,
+    height,
+    layout,
+    objectFit = "cover",
+    objectPosition = "center",
     frames,
     useWorker = typeof window !== "undefined" && "OffscreenCanvas" in window,
     chunkSize = 10,
     fps = 30,
   } = options;
 
-  const emitter = mitt<PlayerEventMap>();
+  // 创建用于按比例撑开容器的元素
+  const placeholder = document.createElement("div");
+  placeholder.className = "ff-placeholder";
+
+  // 创建用于绘制的 canvas 元素
+  const canvas = document.createElement("canvas");
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.cssText = `
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  `;
+  container.appendChild(canvas);
+
+  // 添加必要样式
+  container.style.position = "relative";
+
+  if (layout === "fill") {
+    setStyle(container, {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    });
+  } else {
+    setStyle(container, {
+      position: "relative",
+    });
+  }
+
+  if (layout === "fixed") {
+    setStyle(container, {
+      width: width + "px",
+      height: height + "px",
+    });
+  }
+
+  if (layout === "intrinsic") {
+    setStyle(container, {
+      width: "100%",
+      maxWidth: width + "px",
+    });
+  }
+
+  if (layout === "responsive") {
+    setStyle(container, {
+      width: "100%",
+    });
+  }
+
+  setStyle(canvas, {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: "100%",
+    height: "100%",
+    objectFit,
+    objectPosition,
+  });
+
+  setStyle(placeholder, {
+    paddingBottom: (height / width) * 100 + "%",
+  });
+
+  container.append(placeholder, canvas);
+
+  // 创建 drawer 用于加载和绘制
   const drawer = createDrawer(canvas, useWorker);
+
+  /** 时间轴 */
+  let timeline = 0;
+  // 创建 timer 用于控制时间轴
   const timer = createTimer();
+  // timer 的播放逻辑
+  timer.listen((dt) => {
+    timeline += isReversed ? -dt : dt;
+    const frame = Math.floor(timeline * fps) % frames.length;
+  });
+
+  // 创建 emitter 用于组织事件
+  const emitter = mitt<PlayerEventMap>();
+
+  /** 所有已加载的帧 */
   const loadedFrameIndex = new Set<number>();
 
   /** 是否已经开始加载 */
   let isStartLoading = false;
 
-  /** 当前帧下标 */
+  /**
+   * @property
+   * @see {Player.curFrame}
+   */
   let curFrame = 0;
 
-  /** 时间轴 */
-  let timeline = 0;
-
-  /** 是否处于倒放状态 */
+  /**
+   * @property
+   * @see {Player.isReversed}
+   */
   let isReversed = false;
 
-  // 加载某一帧, 触发相应事件
-  const loadFrame = async (index: number) => {
+  /**
+   *
+   * 加载某一帧，并触发相应事件。调用后将形成记录，已加载的帧不会重复加载。
+   * @param index 帧下标
+   */
+  const _loadFrame = async (index: number) => {
     // 如果此帧已经被加载, 则跳过
     if (loadedFrameIndex.has(index)) {
       return;
@@ -200,21 +308,24 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     }
   };
 
+  /**
+   * @method
+   * @see {Player.load}
+   */
   const load: Player["load"] = async () => {
     isStartLoading = true;
     const linOrder = genLinOrder(frames.length);
-
     const promises: Promise<any>[] = [];
 
     for (const index of linOrder) {
       if (promises.length < chunkSize) {
-        promises.push(loadFrame(index));
+        promises.push(_loadFrame(index));
       } else {
         // 加载图片
         await Promise.all(promises);
         // 清空数组
         promises.length = 0;
-        promises.push(loadFrame(index));
+        promises.push(_loadFrame(index));
       }
     }
 
@@ -224,6 +335,10 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     }
   };
 
+  /**
+   * @method
+   * @see {Player.pin}
+   */
   const pin: Player["pin"] = async (index) => {
     // 如果未开始加载, 则运行 load
     if (!isStartLoading) {
@@ -244,6 +359,10 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     }
   };
 
+  /**
+   * @method
+   * @see {Player.play}
+   */
   const play: Player["play"] = () => {
     timer.start();
     emitter.emit("play", {
@@ -251,12 +370,10 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     });
   };
 
-  // 用于播放的 timer
-  timer.listen((dt) => {
-    timeline += isReversed ? -dt : dt;
-    const frame = Math.floor(timeline * fps) % frames.length;
-  });
-
+  /**
+   * @method
+   * @see {Player.pause}
+   */
   const pause: Player["pause"] = () => {
     timer.stop();
     emitter.emit("pause", {
@@ -264,9 +381,15 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     });
   };
 
+  /**
+   * @method
+   * @see {Player.destroy}
+   */
   const destroy: Player["destroy"] = async () => {
     await drawer.destroy();
     emitter.all.clear();
+    placeholder.remove();
+    canvas.remove();
   };
 
   const player = {

@@ -6,6 +6,7 @@ specifiers:
   '@microsoft/api-extractor': ^7.16.1
   '@types/memoizee': ^0.4.5
   '@types/webpack': ^5.28.0
+  csstype: ^3.0.8
   esbuild-loader: ^2.13.1
   html-webpack-plugin: ^5.3.1
   memoizee: ^0.4.15
@@ -29,6 +30,7 @@ devDependencies:
   '@microsoft/api-extractor': registry.nlark.com/@microsoft/api-extractor/7.16.1
   '@types/memoizee': registry.nlark.com/@types/memoizee/0.4.5
   '@types/webpack': registry.nlark.com/@types/webpack/5.28.0_webpack-cli@4.7.2
+  csstype: registry.nlark.com/csstype/3.0.8
   esbuild-loader: registry.nlark.com/esbuild-loader/2.13.1_webpack@5.39.1
   html-webpack-plugin: 5.3.1_webpack@5.39.1
   rimraf: 3.0.2
@@ -3091,6 +3093,12 @@ packages:
     name: css-what
     version: 5.0.1
     engines: {node: '>= 6'}
+    dev: true
+
+  registry.nlark.com/csstype/3.0.8:
+    resolution: {integrity: sha1-0iZqeScp+yJ80hb7Vy9Dco4a00A=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/csstype/download/csstype-3.0.8.tgz}
+    name: csstype
+    version: 3.0.8
     dev: true
 
   registry.nlark.com/detect-node/2.1.0:

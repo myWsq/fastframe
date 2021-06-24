@@ -10,7 +10,10 @@ for (let i = 1; i < 90; i++) {
 
 async function main() {
   const player = createPlayer({
-    canvas: document.getElementById("canvas") as HTMLCanvasElement,
+    container: document.getElementById("ff-container"),
+    width: 500,
+    height: 800,
+    layout: "responsive",
     frames,
     fps: 10,
     // useWorker: false,
