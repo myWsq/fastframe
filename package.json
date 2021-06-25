@@ -5,8 +5,8 @@
   "module": "./dist/fastframe.es.js",
   "exports": {
     ".": {
-      "import": "./dist/fastframe.cjs.js",
-      "require": "./dist/fastframe.es.js"
+      "import": "./dist/fastframe.es.js",
+      "require": "./dist/fastframe.cjs.js"
     }
   },
   "types": "dist/fastframe.d.ts",
