@@ -20,11 +20,11 @@
   },
   "dependencies": {
     "@folmejs/core": "^2.4.0",
-    "memoizee": "^0.4.15",
     "mitt": "^3.0.0",
     "nanoid": "^3.1.23"
   },
   "devDependencies": {
+    "memoizee": "^0.4.15",
     "@microsoft/api-documenter": "^7.13.23",
     "@microsoft/api-extractor": "^7.16.1",
     "@types/memoizee": "^0.4.5",
