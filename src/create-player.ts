@@ -1,6 +1,6 @@
 import { createDrawer } from "./create-drawer";
 import mitt, { Emitter } from "mitt";
-import { genLinOrder } from "./utils";
+import { genLinOrder, isBetween } from "./utils";
 import { createTimer, setStyle } from "@folmejs/core";
 import { Properties } from "csstype";
 
@@ -34,10 +34,12 @@ export type CreatePlayerOptions = {
   autoload?: boolean;
   /** 是否启用懒加载, 仅当 `autoload` 为 true 时有效, 默认值: `true` */
   lazyload?: boolean;
-  /** 是否自动播放, 仅当 `autoload` 为 true 时有效, 默认值 `true` */
+  /** 是否自动播放, 仅当 `autoload` 为 true 时有效, 默认值: `false` */
   autoplay?: boolean;
-  /** 是否循环播放 */
+  /** 是否循环播放, 默认值: `false` */
   loop?: boolean;
+  /** 播放完成时是否自动倒放, 仅当 `loop` 为 true 时有效, 默认值: `false` */
+  yoyo?: boolean;
 };
 
 /**
@@ -127,6 +129,11 @@ export type Player = {
   pause: () => void;
 
   /**
+   * 修改播放顺序
+   */
+  reverse: () => void;
+
+  /**
    * 监听事件 player 事件
    * @see https://github.com/developit/mitt#on
    */
@@ -152,15 +159,20 @@ export type Player = {
 export function createPlayer(options: CreatePlayerOptions): Player {
   const {
     container,
+    frames,
     width,
     height,
     layout,
     objectFit = "cover",
     objectPosition = "center",
-    frames,
     useWorker = typeof window !== "undefined" && "OffscreenCanvas" in window,
     chunkSize = 10,
     fps = 30,
+    autoload = true,
+    lazyload = true,
+    autoplay = false,
+    loop = false,
+    yoyo = false,
   } = options;
 
   // 创建用于按比例撑开容器的元素
@@ -237,14 +249,44 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   // 创建 drawer 用于加载和绘制
   const drawer = createDrawer(canvas, useWorker);
 
-  /** 时间轴 */
-  let timeline = 0;
+  /** 某一帧停留累计的时间, 配合 timer 计算播放逻辑 */
+  let tickTime = 0;
   // 创建 timer 用于控制时间轴
   const timer = createTimer();
   // timer 的播放逻辑
   timer.listen((dt) => {
-    timeline += isReversed ? -dt : dt;
-    const frame = Math.floor(timeline * fps) % frames.length;
+    tickTime += dt;
+    const min = 0;
+    const max = frames.length - 1;
+
+    // 累计时间大于 fps 对应的帧时间，则切换至下一帧
+    if (tickTime > 1 / fps) {
+      // 重置 tickTime
+      tickTime = 0;
+
+      // 计算下一帧
+      const nextFrame = curFrame + (isReversed ? -1 : 1);
+
+      // 当超出边界时
+      if (!isBetween(nextFrame, min, max)) {
+        // 处理循环播放逻辑
+        if (loop) {
+          if (yoyo) {
+            reverse();
+          } else {
+            pin(isReversed ? max : min);
+          }
+        }
+        // 循环播放未激活则停止播放
+        else {
+          pause();
+        }
+      }
+      // 未超出边界
+      else {
+        pin(nextFrame);
+      }
+    }
   });
 
   // 创建 emitter 用于组织事件
@@ -345,17 +387,18 @@ export function createPlayer(options: CreatePlayerOptions): Player {
       load();
     }
 
+    curFrame = index;
+
     // 计算帧下标
     const i = Math.max(0, Math.min(frames.length - 1, Math.round(index)));
 
     // 仅当帧加载完成绘制
     if (loadedFrameIndex.has(index)) {
-      await drawer.draw(frames[i]);
-      curFrame = index;
       emitter.emit("tick", {
         player,
         frame: index,
       });
+      await drawer.draw(frames[i]);
     }
   };
 
@@ -364,6 +407,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
    * @see {Player.play}
    */
   const play: Player["play"] = () => {
+    tickTime = 0;
     timer.start();
     emitter.emit("play", {
       player,
@@ -379,6 +423,14 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     emitter.emit("pause", {
       player,
     });
+  };
+
+  /**
+   * @method
+   * @see {Player.reverse}
+   */
+  const reverse: Player["reverse"] = () => {
+    isReversed = !isReversed;
   };
 
   /**
@@ -402,6 +454,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     load,
     play,
     pause,
+    reverse,
     pin,
     on: emitter.on.bind(emitter),
     off: emitter.off.bind(emitter),

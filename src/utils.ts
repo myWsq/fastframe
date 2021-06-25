@@ -68,3 +68,14 @@ export function genLinOrder(count: number) {
 
   return order;
 }
+
+/**
+ * 判断数字是否在范围内
+ * @param num - 数字
+ * @param min - 最小范围
+ * @param max - 最大范围
+ * @returns 是否在范围内
+ */
+export function isBetween(num: number, min: number, max: number) {
+  return num >= min && num <= max;
+}

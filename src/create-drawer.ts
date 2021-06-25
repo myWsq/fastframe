@@ -73,8 +73,8 @@ export function createDrawer(
     };
 
     return {
-      draw,
       preload,
+      draw,
       destroy,
     };
   }
