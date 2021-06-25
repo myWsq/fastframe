@@ -426,7 +426,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     timer.stop();
     emitter.all.clear();
     canvas.remove();
-    placeholder?.remove();
+    placeholder && placeholder.remove();
   };
 
   // timer 的播放逻辑

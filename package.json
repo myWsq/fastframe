@@ -16,7 +16,7 @@
     "example"
   ],
   "scripts": {
-    "dev": "vite serve",
+    "dev": "vite serve --host",
     "bundle": "vite build",
     "api": "rimraf temp && tsc --emitDeclarationOnly && api-extractor run && api-documenter markdown --input-folder temp --output-folder api-references",
     "build": "npm run bundle && npm run api"
@@ -36,6 +36,7 @@
     "@microsoft/api-extractor": "^7.16.1",
     "csstype": "^3.0.8",
     "rimraf": "^3.0.2",
+    "scroom": "^1.1.0",
     "typescript": "^4.3.4",
     "vite": "^2.3.8"
   }

@@ -33,24 +33,6 @@ export const loadImageWithFetch = async (src: string) => {
 };
 
 /**
- * 使用 canvas 解码图片，会创建一个脱离屏幕的 canvas 元素
- * 解码会阻塞主线程
- * @param src - 图片地址
- */
-export const decodeImageWithCanvas = (
-  _key: string,
-  width: number,
-  height: number,
-  data: HTMLImageElement
-) => {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  canvas.getContext("2d")!.drawImage(data, 0, 0, width, height);
-  return canvas;
-};
-
-/**
  * 生成间隔排列的数组的有序不重复数组
  * @param count - 数组内元素个数
  */

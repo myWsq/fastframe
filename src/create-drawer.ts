@@ -1,4 +1,4 @@
-import { decodeImageWithCanvas, loadImageWithTag, memo } from "./utils";
+import { loadImageWithTag, memo } from "./utils";
 import DrawerWorker from "./drawer.worker?worker&inline";
 import { createWorkerRunner } from "./create-worker-runner";
 import { DrawerWorkerAcion } from "./types";
@@ -91,18 +91,15 @@ export function createDrawer(
     const imageDataStore = new Map();
 
     const loadImageMemo = memo(loadImageWithTag, imageTagStore);
-    const decodeImageMemo = memo(decodeImageWithCanvas, imageDataStore);
 
     const preload: Drawer["preload"] = async (src: string) => {
       await loadImageMemo(src);
     };
 
     const draw: Drawer["draw"] = async (src: string) => {
-      const data = await loadImageMemo(src).then((data) =>
-        decodeImageMemo(src, width, height, data)
-      );
+      const data = await loadImageMemo(src);
       ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(data, 0, 0);
+      ctx.drawImage(data, 0, 0, width, height);
     };
 
     const destroy: Drawer["destroy"] = async () => {
