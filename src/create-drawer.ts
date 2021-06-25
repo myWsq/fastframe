@@ -31,15 +31,15 @@ export type Drawer = {
  *
  * 创建 drawer 实例, drawer 实例可将帧绘制在 canvas 上
  * @param canvas - canvas element
- * @param isWorkerEnabled -  是否启用 worker 加速
+ * @param parallel - 是否启用多线程加速
  * @returns drawer 实例
  */
 export function createDrawer(
   canvas: HTMLCanvasElement,
-  isWorkerEnabled: boolean
+  parallel: boolean
 ): Drawer {
-  // 启用 worker 的情况
-  if (isWorkerEnabled) {
+  // 启动多线程的情况
+  if (parallel) {
     const runner = createWorkerRunner<DrawerWorkerAction>(new DrawerWorker());
     const offscreenCanvas = canvas.transferControlToOffscreen();
 
@@ -78,7 +78,7 @@ export function createDrawer(
       destroy,
     };
   }
-  // 不使用 worker 的情况
+  // 单线程
   else {
     const ctx = canvas.getContext("2d");
     const width = canvas.width;

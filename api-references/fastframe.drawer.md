@@ -2,20 +2,16 @@
 
 [Home](./index.md) &gt; [fastframe](./fastframe.md) &gt; [Drawer](./fastframe.drawer.md)
 
-## Drawer interface
+## Drawer type
 
 drawer 实例
 
 <b>Signature:</b>
 
 ```typescript
-export interface Drawer 
+export declare type Drawer = {
+    preload: (src: string) => Promise<void>;
+    draw: (src: string) => Promise<void>;
+    destroy: () => Promise<void>;
+};
 ```
-
-## Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [draw](./fastframe.drawer.draw.md) | (src: string) =&gt; Promise&lt;void&gt; | 绘制某一帧 |
-|  [preload](./fastframe.drawer.preload.md) | (src: string) =&gt; Promise&lt;void&gt; | 预加载某一帧，仅影响网络请求 |
-

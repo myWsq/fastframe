@@ -8,20 +8,15 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [createDrawer(canvas, isWorkerEnabled)](./fastframe.createdrawer.md) | 创建 drawer 实例, drawer 实例可将帧绘制在 canvas 上 |
+|  [createDrawer(canvas, parallel)](./fastframe.createdrawer.md) | 创建 drawer 实例, drawer 实例可将帧绘制在 canvas 上 |
 |  [createPlayer(options)](./fastframe.createplayer.md) | 创建 Player |
-
-## Interfaces
-
-|  Interface | Description |
-|  --- | --- |
-|  [CreatePlayerOptions](./fastframe.createplayeroptions.md) | 创建 Player 的配置项 |
-|  [Drawer](./fastframe.drawer.md) | drawer 实例 |
-|  [Player](./fastframe.player.md) | Player 实例 |
 
 ## Type Aliases
 
 |  Type Alias | Description |
 |  --- | --- |
-|  [PlayerEventTypes](./fastframe.playereventtypes.md) | Player 事件类型 |
+|  [CreatePlayerOptions](./fastframe.createplayeroptions.md) | 创建 Player 的配置项 |
+|  [Drawer](./fastframe.drawer.md) | drawer 实例 |
+|  [Player](./fastframe.player.md) | Player 实例 |
+|  [PlayerEventMap](./fastframe.playereventmap.md) | Player 事件类型 |
 

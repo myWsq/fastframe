@@ -2,26 +2,26 @@
 
 [Home](./index.md) &gt; [fastframe](./fastframe.md) &gt; [Player](./fastframe.player.md)
 
-## Player interface
+## Player type
 
 Player 实例
 
 <b>Signature:</b>
 
 ```typescript
-export interface Player 
+export declare type Player = {
+    readonly curFrame: number;
+    readonly isReversed: boolean;
+    readonly isPlaying: boolean;
+    load: () => Promise<void>;
+    pin: (index: number) => Promise<void>;
+    play: () => void;
+    pause: () => void;
+    reverse: () => void;
+    on: Emitter<PlayerEventMap>["on"];
+    off: Emitter<PlayerEventMap>["off"];
+    destroy: () => Promise<void>;
+};
 ```
-
-## Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [curFrame](./fastframe.player.curframe.md) | number | 当前播放的帧 |
-|  [isReversed](./fastframe.player.isreversed.md) | boolean | 是否处于倒放状态 |
-|  [load](./fastframe.player.load.md) | () =&gt; Promise&lt;void&gt; | 加载全部帧图片, 仅执行网络请求 使用抽帧加载的方法，即优先加载间隔的关键帧 <code>[-,-,-,-,-] -&gt; [+,-,+,-,+] -&gt; [+,+,+,+,+]</code> |
-|  [off](./fastframe.player.off.md) | (eventType: [PlayerEventTypes](./fastframe.playereventtypes.md)<!-- -->, handler: (event: any) =&gt; void) =&gt; void | 移除 player 事件监听 |
-|  [on](./fastframe.player.on.md) | (eventType: [PlayerEventTypes](./fastframe.playereventtypes.md)<!-- -->, handler: (event: any) =&gt; void) =&gt; void | 监听事件 player 事件 |
-|  [pause](./fastframe.player.pause.md) | () =&gt; void | 暂停播放 |
-|  [pin](./fastframe.player.pin.md) | (index: number) =&gt; Promise&lt;void&gt; | 切换至某一帧 |
-|  [play](./fastframe.player.play.md) | () =&gt; void | 开始播放 |
+<b>References:</b> [PlayerEventMap](./fastframe.playereventmap.md)
 

@@ -9,7 +9,7 @@
 <b>Signature:</b>
 
 ```typescript
-export declare function createDrawer(canvas: HTMLCanvasElement, isWorkerEnabled: boolean): Drawer;
+export declare function createDrawer(canvas: HTMLCanvasElement, parallel: boolean): Drawer;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ export declare function createDrawer(canvas: HTMLCanvasElement, isWorkerEnabled:
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  canvas | HTMLCanvasElement | canvas element |
-|  isWorkerEnabled | boolean | 是否启用 worker 加速 |
+|  parallel | boolean | 是否启用多线程加速 |
 
 <b>Returns:</b>
 

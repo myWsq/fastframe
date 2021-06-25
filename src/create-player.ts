@@ -29,8 +29,8 @@ export type CreatePlayerOptions = {
         total: number;
         iterator: (i: number) => string;
       };
-  /** 是否使用 worker, 默认为自动检测. */
-  useWorker?: boolean;
+  /** 是否使用多线程优化, 默认为自动检测. */
+  parallel?: boolean;
   /** 加载时一个区块的大小, 默认值: `10` */
   chunkSize?: number;
   /** 播放帧率, 默认值: `30` */
@@ -173,7 +173,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     layout,
     objectFit = "cover",
     objectPosition = "center",
-    useWorker = typeof window !== "undefined" && "OffscreenCanvas" in window,
+    parallel = typeof window !== "undefined" && "OffscreenCanvas" in window,
     chunkSize = 10,
     fps = 30,
     autoload = true,
@@ -268,7 +268,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   container.appendChild(canvas);
 
   // 创建 drawer 用于加载和绘制
-  const drawer = createDrawer(canvas, useWorker);
+  const drawer = createDrawer(canvas, parallel);
 
   /** 某一帧停留累计的时间, 配合 timer 计算播放逻辑 */
   let tickTime = 0;
