@@ -1,6 +1,6 @@
 {
   "name": "fastframe",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "./dist/fastframe.cjs.js",
   "module": "./dist/fastframe.es.js",
   "exports": {
