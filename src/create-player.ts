@@ -23,7 +23,12 @@ export type CreatePlayerOptions = {
   /** 为 canvas 元素设置 object-position, 默认值: center */
   objectPosition?: Properties["objectPosition"];
   /** 图片帧地址  */
-  frames: string[];
+  frames:
+    | string[]
+    | {
+        total: number;
+        iterator: (i: number) => string;
+      };
   /** 是否使用 worker, 默认为自动检测. */
   useWorker?: boolean;
   /** 加载时一个区块的大小, 默认值: `10` */
@@ -105,6 +110,9 @@ export type Player = {
   /** 是否处于倒放状态 */
   readonly isReversed: boolean;
 
+  /** 是否处于播放状态 */
+  readonly isPlaying: boolean;
+
   /**
    * 加载全部帧图片, 仅执行网络请求
    * 使用抽帧加载的方法，即优先加载间隔的关键帧
@@ -174,6 +182,17 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     loop = false,
     yoyo = false,
   } = options;
+
+  // 分析 frames
+  let frameList: string[];
+  if ("total" in frames) {
+    frameList = [];
+    for (let i = 0; i < frames.total; i++) {
+      frameList.push(frames.iterator(i));
+    }
+  } else {
+    frameList = frames;
+  }
 
   // 创建用于绘制的 canvas 元素
   const canvas = document.createElement("canvas");
@@ -253,13 +272,175 @@ export function createPlayer(options: CreatePlayerOptions): Player {
 
   /** 某一帧停留累计的时间, 配合 timer 计算播放逻辑 */
   let tickTime = 0;
-  // 创建 timer 用于控制时间轴
+
+  /** 用于播放控制的 timer */
   const timer = createTimer();
+
+  // 创建 emitter 用于组织事件
+  const emitter = mitt<PlayerEventMap>();
+
+  /** 所有已加载的帧 */
+  const loadedFrameIndex = new Set<number>();
+
+  /** 是否已经开始加载 */
+  let isStartLoading = false;
+
+  /**
+   * @property
+   * @see {Player.curFrame}
+   */
+  let curFrame = 0;
+
+  /**
+   * @property
+   * @see {Player.isReversed}
+   */
+  let isReversed = false;
+
+  /**
+   * @property
+   * @see {Player.isPlaying}
+   */
+  let isPlaying = false;
+
+  /**
+   *
+   * 加载某一帧，并触发相应事件。调用后将形成记录，已加载的帧不会重复加载。
+   * @param index 帧下标
+   */
+  const _loadFrame = async (index: number) => {
+    // 如果此帧已经被加载, 则跳过
+    if (loadedFrameIndex.has(index)) {
+      return;
+    }
+    const timeBefore = Date.now();
+    let isSuccess = true;
+    try {
+      await drawer.preload(frameList[index]);
+    } catch (error) {
+      console.warn("Frame load failed", error);
+      isSuccess = false;
+    } finally {
+      loadedFrameIndex.add(index);
+      const timeAfter = Date.now();
+
+      emitter.emit("frameloaded", {
+        isSuccess,
+        time: timeAfter - timeBefore,
+        index,
+        current: loadedFrameIndex.size,
+        total: frameList.length,
+        player,
+      });
+
+      // 全部帧加载完成
+      if (loadedFrameIndex.size === frameList.length) {
+        emitter.emit("loaded", {
+          player,
+          total: frameList.length,
+        });
+      }
+    }
+  };
+
+  /**
+   * @method
+   * @see {Player.load}
+   */
+  const load: Player["load"] = async () => {
+    isStartLoading = true;
+    const linOrder = genLinOrder(frameList.length);
+    const promises: Promise<any>[] = [];
+
+    for (const index of linOrder) {
+      if (promises.length < chunkSize) {
+        promises.push(_loadFrame(index));
+      } else {
+        // 加载图片
+        await Promise.all(promises);
+        // 清空数组
+        promises.length = 0;
+        promises.push(_loadFrame(index));
+      }
+    }
+
+    // 加载剩余不足一个 chunk 的图片
+    if (promises.length) {
+      await Promise.all(promises);
+    }
+  };
+
+  /**
+   * @method
+   * @see {Player.pin}
+   */
+  const pin: Player["pin"] = async (index) => {
+    curFrame = index;
+
+    // 计算帧下标
+    const i = Math.max(0, Math.min(frameList.length - 1, Math.round(index)));
+
+    // 仅当帧加载完成绘制
+    if (loadedFrameIndex.has(index)) {
+      emitter.emit("tick", {
+        player,
+        frame: index,
+      });
+      await drawer.draw(frameList[i]);
+    }
+  };
+
+  /**
+   * @method
+   * @see {Player.play}
+   */
+  const play: Player["play"] = () => {
+    tickTime = 0;
+    isPlaying = true;
+    timer.start();
+    emitter.emit("play", {
+      player,
+    });
+  };
+
+  /**
+   * @method
+   * @see {Player.pause}
+   */
+  const pause: Player["pause"] = () => {
+    timer.stop();
+    isPlaying = false;
+    emitter.emit("pause", {
+      player,
+    });
+  };
+
+  /**
+   * @method
+   * @see {Player.reverse}
+   */
+  const reverse: Player["reverse"] = () => {
+    isReversed = !isReversed;
+  };
+
+  /**
+   * @method
+   * @see {Player.destroy}
+   */
+  const destroy: Player["destroy"] = async () => {
+    await drawer.destroy();
+    observer.disconnect();
+    timer.stop();
+    emitter.all.clear();
+    canvas.remove();
+    placeholder?.remove();
+  };
+
   // timer 的播放逻辑
   timer.listen((dt) => {
     tickTime += dt;
     const min = 0;
-    const max = frames.length - 1;
+    const max = frameList.length - 1;
 
     // 累计时间大于 fps 对应的帧时间，则切换至下一帧
     if (tickTime > 1 / fps) {
@@ -291,160 +472,33 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     }
   });
 
-  // 创建 emitter 用于组织事件
-  const emitter = mitt<PlayerEventMap>();
+  /** 是否进入屏幕的 observer */
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      // 是否处于屏幕内
+      const isActive = entry.isIntersecting;
 
-  /** 所有已加载的帧 */
-  const loadedFrameIndex = new Set<number>();
-
-  /** 是否已经开始加载 */
-  let isStartLoading = false;
-
-  /**
-   * @property
-   * @see {Player.curFrame}
-   */
-  let curFrame = 0;
-
-  /**
-   * @property
-   * @see {Player.isReversed}
-   */
-  let isReversed = false;
-
-  /**
-   *
-   * 加载某一帧，并触发相应事件。调用后将形成记录，已加载的帧不会重复加载。
-   * @param index 帧下标
-   */
-  const _loadFrame = async (index: number) => {
-    // 如果此帧已经被加载, 则跳过
-    if (loadedFrameIndex.has(index)) {
-      return;
-    }
-    const timeBefore = Date.now();
-    let isSuccess = true;
-    try {
-      await drawer.preload(frames[index]);
-    } catch (error) {
-      console.warn("Frame load failed", error);
-      isSuccess = false;
-    } finally {
-      loadedFrameIndex.add(index);
-      const timeAfter = Date.now();
-
-      emitter.emit("frameloaded", {
-        isSuccess,
-        time: timeAfter - timeBefore,
-        index,
-        current: loadedFrameIndex.size,
-        total: frames.length,
-        player,
-      });
-
-      // 全部帧加载完成
-      if (loadedFrameIndex.size === frames.length) {
-        emitter.emit("loaded", {
-          player,
-          total: frames.length,
-        });
+      // 懒加载逻辑
+      if (!isStartLoading && isActive && autoload && lazyload) {
+        load();
       }
-    }
-  };
 
-  /**
-   * @method
-   * @see {Player.load}
-   */
-  const load: Player["load"] = async () => {
-    isStartLoading = true;
-    const linOrder = genLinOrder(frames.length);
-    const promises: Promise<any>[] = [];
-
-    for (const index of linOrder) {
-      if (promises.length < chunkSize) {
-        promises.push(_loadFrame(index));
-      } else {
-        // 加载图片
-        await Promise.all(promises);
-        // 清空数组
-        promises.length = 0;
-        promises.push(_loadFrame(index));
+      // 当 player 处于屏幕外时，强制停止 timer
+      if (!isActive) {
+        timer.stop();
       }
+
+      // 当 player 处于屏幕内且处于播放状态，恢复 timer
+      if (isActive && isPlaying) {
+        timer.start();
+      }
+    },
+    {
+      rootMargin: "10%",
     }
+  );
 
-    // 加载剩余不足一个 chunk 的图片
-    if (promises.length) {
-      await Promise.all(promises);
-    }
-  };
-
-  /**
-   * @method
-   * @see {Player.pin}
-   */
-  const pin: Player["pin"] = async (index) => {
-    // 如果未开始加载, 则运行 load
-    if (!isStartLoading) {
-      load();
-    }
-
-    curFrame = index;
-
-    // 计算帧下标
-    const i = Math.max(0, Math.min(frames.length - 1, Math.round(index)));
-
-    // 仅当帧加载完成绘制
-    if (loadedFrameIndex.has(index)) {
-      emitter.emit("tick", {
-        player,
-        frame: index,
-      });
-      await drawer.draw(frames[i]);
-    }
-  };
-
-  /**
-   * @method
-   * @see {Player.play}
-   */
-  const play: Player["play"] = () => {
-    tickTime = 0;
-    timer.start();
-    emitter.emit("play", {
-      player,
-    });
-  };
-
-  /**
-   * @method
-   * @see {Player.pause}
-   */
-  const pause: Player["pause"] = () => {
-    timer.stop();
-    emitter.emit("pause", {
-      player,
-    });
-  };
-
-  /**
-   * @method
-   * @see {Player.reverse}
-   */
-  const reverse: Player["reverse"] = () => {
-    isReversed = !isReversed;
-  };
-
-  /**
-   * @method
-   * @see {Player.destroy}
-   */
-  const destroy: Player["destroy"] = async () => {
-    await drawer.destroy();
-    emitter.all.clear();
-    placeholder?.remove();
-    canvas.remove();
-  };
+  observer.observe(container);
 
   const player = {
     get curFrame() {
@@ -452,6 +506,9 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     },
     get isReversed() {
       return isReversed;
+    },
+    get isPlaying() {
+      return isPlaying;
     },
     load,
     play,
@@ -462,6 +519,15 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     off: emitter.off.bind(emitter),
     destroy,
   };
+
+  // 自动加载
+  if (autoload && !lazyload) {
+    load();
+  }
+  // 自动播放
+  if (autoload && autoplay) {
+    play();
+  }
 
   return player;
 }
