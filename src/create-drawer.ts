@@ -1,8 +1,7 @@
-import { decodeImageWithCanvas, loadImageWithTag } from "./utils";
-import DrawerWorker from "./drawer.worker.ts";
+import { decodeImageWithCanvas, loadImageWithTag, memo } from "./utils";
+import DrawerWorker from "./drawer.worker?worker&inline";
 import { createWorkerRunner } from "./create-worker-runner";
-import { Acion as DrawerWorkerAction } from "./drawer.worker";
-import memo from "memoizee";
+import { DrawerWorkerAcion } from "./types";
 
 /**
  * @public
@@ -40,7 +39,7 @@ export function createDrawer(
 ): Drawer {
   // 启动多线程的情况
   if (parallel) {
-    const runner = createWorkerRunner<DrawerWorkerAction>(new DrawerWorker());
+    const runner = createWorkerRunner<DrawerWorkerAcion>(new DrawerWorker());
     const offscreenCanvas = canvas.transferControlToOffscreen();
 
     // offscreen transfer 一旦执行, 主线程就会失去 canvas 的控制权,
@@ -81,32 +80,34 @@ export function createDrawer(
   // 单线程
   else {
     const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
-
     if (!ctx) {
       throw new Error("Your browser does not support canvas 2d context");
     }
 
-    const loadImageMemo = memo(loadImageWithTag, {
-      promise: true,
-    });
+    const width = canvas.width;
+    const height = canvas.height;
 
-    const decodeImageMemo = memo(decodeImageWithCanvas);
+    const imageTagStore = new Map();
+    const imageDataStore = new Map();
+
+    const loadImageMemo = memo(loadImageWithTag, imageTagStore);
+    const decodeImageMemo = memo(decodeImageWithCanvas, imageDataStore);
 
     const preload: Drawer["preload"] = async (src: string) => {
       await loadImageMemo(src);
     };
 
     const draw: Drawer["draw"] = async (src: string) => {
-      const data = await loadImageMemo(src).then(decodeImageMemo);
+      const data = await loadImageMemo(src).then((data) =>
+        decodeImageMemo(src, width, height, data)
+      );
       ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(data, 0, 0, width, height);
+      ctx.drawImage(data, 0, 0);
     };
 
     const destroy: Drawer["destroy"] = async () => {
-      loadImageMemo.clear();
-      decodeImageMemo.clear();
+      imageTagStore.clear();
+      imageDataStore.clear();
     };
 
     return {

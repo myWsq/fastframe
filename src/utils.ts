@@ -1,3 +1,5 @@
+import memoize from "fast-memoize";
+
 /**
  * 使用 image 元素加载图片, 会创建一个脱离屏幕的 image element.
  * 加载会阻塞主线程
@@ -35,11 +37,16 @@ export const loadImageWithFetch = async (src: string) => {
  * 解码会阻塞主线程
  * @param src - 图片地址
  */
-export const decodeImageWithCanvas = (data: HTMLImageElement) => {
+export const decodeImageWithCanvas = (
+  _key: string,
+  width: number,
+  height: number,
+  data: HTMLImageElement
+) => {
   const canvas = document.createElement("canvas");
-  canvas.width = data.width;
-  canvas.height = data.height;
-  canvas.getContext("2d")!.drawImage(data, 0, 0, data.width, data.height);
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d")!.drawImage(data, 0, 0, width, height);
   return canvas;
 };
 
@@ -78,4 +85,19 @@ export function genLinOrder(count: number) {
  */
 export function isBetween(num: number, min: number, max: number) {
   return num >= min && num <= max;
+}
+
+export function memo<T extends (...args: any[]) => any>(
+  fn: T,
+  store: Map<any, any>
+): T {
+  return memoize(fn, {
+    cache: {
+      create: () => ({
+        has: (key) => store.has(key),
+        get: (key) => store.get(key),
+        set: (key, value) => store.set(key, value),
+      }),
+    },
+  });
 }
