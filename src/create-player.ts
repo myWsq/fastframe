@@ -368,16 +368,16 @@ export function createPlayer(options: CreatePlayerOptions): Player {
    * @see {Player.pin}
    */
   const pin: Player["pin"] = async (index) => {
-    curFrame = index;
-
     // 计算帧下标
     const i = Math.max(0, Math.min(frameList.length - 1, Math.round(index)));
 
+    curFrame = i;
+
     // 仅当帧加载完成绘制
-    if (loadedFrameIndex.has(index)) {
+    if (loadedFrameIndex.has(i)) {
       emitter.emit("tick", {
         player,
-        frame: index,
+        frame: i,
       });
       await drawer.draw(frameList[i]);
     }
