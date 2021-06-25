@@ -175,10 +175,6 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     yoyo = false,
   } = options;
 
-  // 创建用于按比例撑开容器的元素
-  const placeholder = document.createElement("div");
-  placeholder.className = "ff-placeholder";
-
   // 创建用于绘制的 canvas 元素
   const canvas = document.createElement("canvas");
   const ratio = window.devicePixelRatio || 1;
@@ -191,10 +187,20 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     width: 100%;
     height: 100%;
   `;
-  container.appendChild(canvas);
 
   // 添加必要样式
   container.style.position = "relative";
+  let placeholder: HTMLDivElement;
+
+  if (layout === "intrinsic" || layout === "responsive") {
+    // 创建用于按比例撑开容器的元素
+    placeholder = document.createElement("div");
+    placeholder.className = "ff-placeholder";
+    setStyle(placeholder, {
+      paddingBottom: (height / width) * 100 + "%",
+    });
+    container.append(placeholder, canvas);
+  }
 
   if (layout === "fill") {
     setStyle(container, {
@@ -240,11 +246,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     objectPosition,
   });
 
-  setStyle(placeholder, {
-    paddingBottom: (height / width) * 100 + "%",
-  });
-
-  container.append(placeholder, canvas);
+  container.appendChild(canvas);
 
   // 创建 drawer 用于加载和绘制
   const drawer = createDrawer(canvas, useWorker);
@@ -440,7 +442,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   const destroy: Player["destroy"] = async () => {
     await drawer.destroy();
     emitter.all.clear();
-    placeholder.remove();
+    placeholder?.remove();
     canvas.remove();
   };
 

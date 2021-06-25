@@ -13,7 +13,7 @@ async function main() {
     container: document.getElementById("ff-container"),
     width: 400,
     height: 600,
-    layout: "fill",
+    layout: "responsive",
     frames,
     fps: 60,
     useWorker: false,
