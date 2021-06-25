@@ -244,14 +244,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
 
   if (layout === "intrinsic") {
     setStyle(container, {
-      width: "100%",
       maxWidth: width + "px",
-    });
-  }
-
-  if (layout === "responsive") {
-    setStyle(container, {
-      width: "100%",
     });
   }
 
