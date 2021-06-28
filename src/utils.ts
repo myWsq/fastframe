@@ -8,6 +8,7 @@ import memoize from "fast-memoize";
 export const loadImageWithTag = (src: string) => {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
+    image.decoding = "async";
     const onload = () => {
       resolve(image);
       image.removeEventListener("load", onload, false);
