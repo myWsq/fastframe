@@ -83,3 +83,13 @@ export function memo<T extends (...args: any[]) => any>(
     },
   });
 }
+
+/** 检测是否支持多线程模式 */
+export function isParallelSupport() {
+  return (
+    typeof window !== "undefined" &&
+    "OffscreenCanvas" in window &&
+    "transferControlToOffscreen" in HTMLCanvasElement.prototype &&
+    "createImageBitmap" in window
+  );
+}

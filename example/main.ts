@@ -15,16 +15,15 @@ async function main() {
             800 + key
           }&format=jpeg&quality=80`,
       },
-      parallel: true,
     });
     const sc = createScroom({
       target: el,
-      offset: 0.7,
+      offset: 0.3,
     });
     sc.on("progress", (e) => {
       player.pin(e.progress * 80);
     });
-    // debug(sc);
+    debug(sc);
   });
 }
 

@@ -1,6 +1,6 @@
 import { createDrawer } from "./create-drawer";
 import mitt, { Emitter } from "mitt";
-import { genLinOrder, isBetween } from "./utils";
+import { genLinOrder, isBetween, isParallelSupport } from "./utils";
 import { createTimer, setStyle } from "@folmejs/core";
 import { Properties } from "csstype";
 
@@ -173,7 +173,6 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     layout,
     objectFit = "cover",
     objectPosition = "center",
-    parallel = typeof window !== "undefined" && "OffscreenCanvas" in window,
     chunkSize = 10,
     fps = 30,
     autoload = true,
@@ -181,6 +180,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     autoplay = false,
     loop = false,
     yoyo = false,
+    parallel = isParallelSupport(),
   } = options;
 
   // 分析 frames
