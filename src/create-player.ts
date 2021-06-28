@@ -207,8 +207,6 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     height: 100%;
   `;
 
-  // 添加必要样式
-  container.style.position = "relative";
   let placeholder: HTMLDivElement;
 
   if (layout === "intrinsic" || layout === "responsive") {
@@ -230,9 +228,16 @@ export function createPlayer(options: CreatePlayerOptions): Player {
       height: "100%",
     });
   } else {
-    setStyle(container, {
-      position: "relative",
-    });
+    // 添加必要样式
+    if (container.style.position === "static") {
+      throw new Error("Container position should be static");
+    }
+
+    if (container.style.position === "") {
+      setStyle(container, {
+        position: "relative",
+      });
+    }
   }
 
   if (layout === "fixed") {
@@ -521,6 +526,8 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   if (autoload && autoplay) {
     play();
   }
+  // 自动加载并绘制第一帧
+  _loadFrame(0).then(() => pin(0));
 
   return player;
 }

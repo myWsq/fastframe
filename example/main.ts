@@ -4,7 +4,7 @@ import { createScroom, debug } from "scroom";
 async function main() {
   document.querySelectorAll(".wrapper").forEach((el, key) => {
     const player = createPlayer({
-      container: el.querySelector(".canvas") as HTMLElement,
+      container: el.querySelector(".player") as HTMLElement,
       width: 400,
       height: 600,
       layout: "responsive",
