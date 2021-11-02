@@ -34,6 +34,7 @@
   "devDependencies": {
     "@microsoft/api-documenter": "^7.13.23",
     "@microsoft/api-extractor": "^7.16.1",
+    "@types/offscreencanvas": "^2019.6.4",
     "csstype": "^3.0.8",
     "rimraf": "^3.0.2",
     "scroom": "^1.1.1",

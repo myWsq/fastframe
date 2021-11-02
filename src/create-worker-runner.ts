@@ -21,7 +21,11 @@ export function createWorkerRunner<A>(worker: Worker) {
     }
   };
 
-  function exec<T>(action: A, payload?: any, transfer: Transferable[] = []) {
+  function exec<T>(
+    action: A,
+    payload?: any,
+    transfer: (Transferable | OffscreenCanvas)[] = []
+  ) {
     const id = nanoid();
 
     worker.postMessage(

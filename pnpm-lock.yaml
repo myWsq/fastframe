@@ -4,6 +4,7 @@ specifiers:
   '@folmejs/core': ^2.4.0
   '@microsoft/api-documenter': ^7.13.23
   '@microsoft/api-extractor': ^7.16.1
+  '@types/offscreencanvas': ^2019.6.4
   csstype: ^3.0.8
   fast-memoize: ^2.5.2
   mitt: ^3.0.0
@@ -22,6 +23,7 @@ dependencies:
 devDependencies:
   '@microsoft/api-documenter': registry.nlark.com/@microsoft/api-documenter/7.13.23
   '@microsoft/api-extractor': registry.nlark.com/@microsoft/api-extractor/7.16.1
+  '@types/offscreencanvas': 2019.6.4
   csstype: registry.nlark.com/csstype/3.0.8
   rimraf: 3.0.2
   scroom: registry.nlark.com/scroom/1.1.1
@@ -32,6 +34,10 @@ packages:
 
   /@types/argparse/1.0.38:
     resolution: {integrity: sha1-qB/YYG1IH4c6OADG665PHXaKVqk=, tarball: '@types/argparse/download/@types/argparse-1.0.38.tgz'}
+    dev: true
+
+  /@types/offscreencanvas/2019.6.4:
+    resolution: {integrity: sha1-ZPbRILU5JQKCmcdE/N0y0s1SWWM=, tarball: '@types/offscreencanvas/download/@types/offscreencanvas-2019.6.4.tgz'}
     dev: true
 
   /argparse/1.0.10:
@@ -56,6 +62,11 @@ packages:
     engines: {node: '>=0.1.90'}
     dev: true
 
+  /commander/2.20.3:
+    resolution: {integrity: sha1-/UhehMA+tIgcIHIrpIA16FMa6zM=, tarball: commander/download/commander-2.20.3.tgz}
+    dev: true
+    optional: true
+
   /concat-map/0.0.1:
     resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=, tarball: concat-map/download/concat-map-0.0.1.tgz}
     dev: true
@@ -73,6 +84,12 @@ packages:
   /fast-json-stable-stringify/2.1.0:
     resolution: {integrity: sha1-h0v2nG9ATCtdmcSBNBOZ/VWJJjM=, tarball: fast-json-stable-stringify/download/fast-json-stable-stringify-2.1.0.tgz}
     dev: true
+
+  /fsevents/2.3.2:
+    resolution: {integrity: sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro=, tarball: fsevents/download/fsevents-2.3.2.tgz}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    dev: true
+    optional: true
 
   /graceful-fs/4.2.6:
     resolution: {integrity: sha1-/wQLKwhTsjw9MQJ1I3BvGIXXa+4=, tarball: graceful-fs/download/graceful-fs-4.2.6.tgz?cache=0&sync_timestamp=1612917647930&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fgraceful-fs%2Fdownload%2Fgraceful-fs-4.2.6.tgz}
@@ -338,13 +355,6 @@ packages:
     version: 1.2.2
     dev: true
 
-  registry.nlark.com/commander/2.20.3:
-    resolution: {integrity: sha1-/UhehMA+tIgcIHIrpIA16FMa6zM=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/commander/download/commander-2.20.3.tgz}
-    name: commander
-    version: 2.20.3
-    dev: true
-    optional: true
-
   registry.nlark.com/csstype/3.0.8:
     resolution: {integrity: sha1-0iZqeScp+yJ80hb7Vy9Dco4a00A=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/csstype/download/csstype-3.0.8.tgz}
     name: csstype
@@ -388,15 +398,6 @@ packages:
     name: fs.realpath
     version: 1.0.0
     dev: true
-
-  registry.nlark.com/fsevents/2.3.2:
-    resolution: {integrity: sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/fsevents/download/fsevents-2.3.2.tgz?cache=0&sync_timestamp=1622697195220&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ffsevents%2Fdownload%2Ffsevents-2.3.2.tgz}
-    name: fsevents
-    version: 2.3.2
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-    dev: true
-    optional: true
 
   registry.nlark.com/function-bind/1.1.1:
     resolution: {integrity: sha1-pWiZ0+o8m6uHS7l3O3xe3pL0iV0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/function-bind/download/function-bind-1.1.1.tgz}
@@ -510,7 +511,7 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: registry.nlark.com/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: true
 
   registry.nlark.com/scroom/1.1.1:
@@ -557,7 +558,7 @@ packages:
       resolve: registry.nlark.com/resolve/1.20.0
       rollup: registry.nlark.com/rollup/2.52.2
     optionalDependencies:
-      fsevents: registry.nlark.com/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: true
 
   registry.nlark.com/wrappy/1.0.2:
@@ -576,5 +577,5 @@ packages:
       lodash.isequal: registry.nlark.com/lodash.isequal/4.5.0
       validator: registry.nlark.com/validator/8.2.0
     optionalDependencies:
-      commander: registry.nlark.com/commander/2.20.3
+      commander: 2.20.3
     dev: true

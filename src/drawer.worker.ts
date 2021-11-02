@@ -8,11 +8,10 @@ let canvas: OffscreenCanvas | null = null;
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 
 const loadImageMemo = memo(loadImageWithFetch, imageTagStore);
-const deocdeImageMemo = memo(
-  (_key: string, width: number, height: number, data: Blob) =>
-    createImageBitmap(data, 0, 0, width, height),
-  imageDataStore
-);
+const decodeImageMemo = memo(async (src: string) => {
+  const data = await loadImageMemo(src);
+  return createImageBitmap(data);
+}, imageDataStore);
 
 self.onmessage = async ({ data }) => {
   const { id, action } = data;
@@ -39,9 +38,7 @@ self.onmessage = async ({ data }) => {
         }
         const { src } = data;
         const { width, height } = canvas;
-        const decoded = await loadImageMemo(src).then((data) =>
-          deocdeImageMemo(src, width, height, data)
-        );
+        const decoded = await decodeImageMemo(src);
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(decoded, 0, 0, width, height);
         break;
