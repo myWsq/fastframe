@@ -15,14 +15,13 @@ const decodeImageMemo = memo(async (src: string) => {
 
 self.onmessage = async ({ data }) => {
   const { id, action } = data;
-
   try {
     switch (action as DrawerWorkerAcion) {
       case "register":
-        const { canvas, alpha } = data;
+        canvas = data.canvas;
         if (canvas) {
           ctx = canvas.getContext("2d", {
-            alpha: alpha,
+            alpha: data.alpha,
           });
         }
         if (!ctx) {
