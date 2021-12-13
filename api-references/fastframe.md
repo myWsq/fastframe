@@ -8,7 +8,7 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [createDrawer(canvas, parallel)](./fastframe.createdrawer.md) | 创建 drawer 实例, drawer 实例可将帧绘制在 canvas 上 |
+|  [createDrawer(canvas, parallel, alpha)](./fastframe.createdrawer.md) | 创建 drawer 实例, drawer 实例可将帧绘制在 canvas 上 |
 |  [createPlayer(options)](./fastframe.createplayer.md) | 创建 Player |
 
 ## Type Aliases

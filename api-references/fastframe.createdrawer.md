@@ -9,7 +9,7 @@
 <b>Signature:</b>
 
 ```typescript
-export declare function createDrawer(canvas: HTMLCanvasElement, parallel: boolean): Drawer;
+export declare function createDrawer(canvas: HTMLCanvasElement, parallel: boolean, alpha: boolean): Drawer;
 ```
 
 ## Parameters
@@ -18,6 +18,7 @@ export declare function createDrawer(canvas: HTMLCanvasElement, parallel: boolea
 |  --- | --- | --- |
 |  canvas | HTMLCanvasElement | canvas element |
 |  parallel | boolean | 是否启用多线程加速 |
+|  alpha | boolean |  |
 
 <b>Returns:</b>
 

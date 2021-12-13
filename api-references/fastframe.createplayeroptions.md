@@ -21,6 +21,7 @@ export declare type CreatePlayerOptions = {
         iterator: (i: number) => string;
     };
     parallel?: boolean;
+    alpha?: boolean;
     chunkSize?: number;
     fps?: number;
     autoload?: boolean;
