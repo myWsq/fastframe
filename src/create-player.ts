@@ -16,6 +16,7 @@ export type CreatePlayerOptions = {
   height: number;
   /** canvas 宽度 */
   width: number;
+
   /** canvas 布局方式 */
   layout: "intrinsic" | "responsive" | "fixed" | "fill";
   /** 为 canvas 元素设置 object-fit, 默认值: cover */
@@ -31,6 +32,8 @@ export type CreatePlayerOptions = {
       };
   /** 是否使用多线程优化, 默认为自动检测. */
   parallel?: boolean;
+  /** 是否开启透明度 */
+  alpha?: boolean;
   /** 加载时一个区块的大小, 默认值: `10` */
   chunkSize?: number;
   /** 播放帧率, 默认值: `30` */
@@ -181,6 +184,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
     loop = false,
     yoyo = false,
     parallel = isParallelSupport(),
+    alpha = false,
   } = options;
 
   // 分析 frames
@@ -196,7 +200,9 @@ export function createPlayer(options: CreatePlayerOptions): Player {
 
   // 创建用于绘制的 canvas 元素
   const canvas = document.createElement("canvas");
-  const ratio = window.devicePixelRatio || 1;
+  // 现代 canvas 会自动处理 ratio
+  // const ratio = window.devicePixelRatio || 1;
+  const ratio = 1;
   canvas.width = width * ratio;
   canvas.height = height * ratio;
   canvas.style.cssText = `
@@ -266,7 +272,7 @@ export function createPlayer(options: CreatePlayerOptions): Player {
   container.appendChild(canvas);
 
   // 创建 drawer 用于加载和绘制
-  const drawer = createDrawer(canvas, parallel);
+  const drawer = createDrawer(canvas, parallel, alpha);
 
   /** 某一帧停留累计的时间, 配合 timer 计算播放逻辑 */
   let tickTime = 0;

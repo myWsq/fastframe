@@ -19,9 +19,11 @@ self.onmessage = async ({ data }) => {
   try {
     switch (action as DrawerWorkerAcion) {
       case "register":
-        canvas = data.canvas;
+        const { canvas, alpha } = data;
         if (canvas) {
-          ctx = canvas.getContext("2d");
+          ctx = canvas.getContext("2d", {
+            alpha: alpha,
+          });
         }
         if (!ctx) {
           throw new Error("Your browser does not support offscreen rendering");

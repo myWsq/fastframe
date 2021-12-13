@@ -35,19 +35,21 @@ export type Drawer = {
  */
 export function createDrawer(
   canvas: HTMLCanvasElement,
-  parallel: boolean
+  parallel: boolean,
+  alpha: boolean
 ): Drawer {
   // 启动多线程的情况
   if (parallel) {
     const runner = createWorkerRunner<DrawerWorkerAcion>(new DrawerWorker());
     const offscreenCanvas = canvas.transferControlToOffscreen();
 
-    // offscreen transfer 一旦执行, 主线程就会失去 canvas 的控制权,
+    // offscreen transfer 一旦执行, 主线程就会失去 canvas 的控制权,
     // 所以需要提前执行一次 register 操作，以便 worker 记录
     runner(
       "register",
       {
         canvas: offscreenCanvas,
+        alpha,
       },
       [offscreenCanvas]
     );
@@ -79,7 +81,9 @@ export function createDrawer(
   }
   // 单线程
   else {
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", {
+      alpha,
+    });
     if (!ctx) {
       throw new Error("Your browser does not support canvas 2d context");
     }
